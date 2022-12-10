@@ -201,6 +201,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			
         } else if ( command.data.name ==='addpoints'){ 
 			if(!checkIfAdmin(interaction.user.id).message) return await interaction.reply({content:"You don't have access to add points",ephemeral:true})
+			await interaction.reply({content:"Point Adding",ephemeral:true})
 			// if(interaction.user.id !== OwnerId) return await interaction.reply({content:"You don't have access to add points",ephemeral:true})
 			const points = interaction.options._hoistedOptions?.[0].value
 			const id = interaction.options._hoistedOptions?.[1].value
@@ -208,12 +209,13 @@ client.on(Events.InteractionCreate, async interaction => {
 			if(!checkIfuser(userId).message) return interaction.reply({ content: `The user not found in core team`, ephemeral: true })
 			let msgData = await addPoints(checkIfuser(userId).user.user,{user_id:userId,points:points},databaseName)
 
-			 await interaction.reply({content:"Point Added",ephemeral:true})
+			 await interaction.editReply({content:"Point Added",ephemeral:true})
 			 log.send({embeds:[msgData],ephemeral:false})
 			 
 			//  interaction.reply("Point Added")
 			
 		} else if ( interaction.commandName === 'addtask'){
+			await interaction.reply({content:"Task adding",ephemeral:true})
 			const points = interaction.options._hoistedOptions?.[0].value
 			const taskName = interaction.options._hoistedOptions?.[1].value
 			const category = interaction.options._subcommand
@@ -221,16 +223,18 @@ client.on(Events.InteractionCreate, async interaction => {
 			
 			let addTaskData = await addTasks(input,databaseName)
 			// console.log(addTaskData)
-			await interaction.reply({content:"Task Added",ephemeral:true})
+			await interaction.editReply({content:"Task Added",ephemeral:true})
 			log.send({embeds:[addTaskData], ephemeral: false })
 			 
 			
 		} else if ( interaction.commandName === 'view-task'){
+			await interaction.reply({content:'searching tasks', ephemeral: true })
 			const task_id = interaction.options._hoistedOptions?.[0].value
 			let input = {user:interaction.user,task_id:task_id}
 			
 			let viewTaskData = await viewTask(input,databaseName)
-			 await interaction.reply({embeds:[viewTaskData], ephemeral: true })
+			 await interaction.editReply({embeds:[viewTaskData], ephemeral: true })
+			 
 		} else if ( interaction.commandName === 'approve-task'){
 			if(!checkIfAdmin(interaction.user.id).message) return await interaction.reply({content:"You don't have access to approve tasks",ephemeral:true})
 			await interaction.reply({content:"Task Approving",ephemeral:true})
