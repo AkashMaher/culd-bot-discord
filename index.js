@@ -209,7 +209,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			let msgData = await addPoints(checkIfuser(userId).user.user,{user_id:userId,points:points},databaseName)
 
 			 log.send({embeds:[msgData],ephemeral:false})
-			 interaction.reply({content:'Points Added',ephemeral:true})
+			 interaction.reply({content:'Points Added',ephemeral:false})
 			
 		} else if ( interaction.commandName === 'addtask'){
 			const points = interaction.options._hoistedOptions?.[0].value
@@ -220,7 +220,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			let addTaskData = await addTasks(input,databaseName)
 			// console.log(addTaskData)
 			log.send({embeds:[addTaskData], ephemeral: false })
-			 interaction.reply({content:'Task Added',ephemeral:true})
+			 interaction.reply({content:'Task Added',ephemeral:false})
 			
 		} else if ( interaction.commandName === 'view-task'){
 			const task_id = interaction.options._hoistedOptions?.[0].value
@@ -239,7 +239,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			if(viewTaskData.message !== 'success') return await interaction.reply({content:viewTaskData.message, ephemeral: true })
 			log.send({embeds:[msg], ephemeral: false })/
 			// await log.send(`Event: Task Add\n Task ID: ${addTaskData.task_id}\n User ID: ${addTaskData.user_id} \n User Name:${addTaskData.user_name}\nTASK DETAILS\n Task Category: ${addTaskData.task_details.category}\n Task Name: ${addTaskData.task_details.task_name}\n Points:${addTaskData.task_details.point}\n\nBy ${interaction.user.tag}`)
-			 interaction.reply({content:`Task Approved!`, ephemeral: true })
+			 interaction.reply({content:`Task Approved!`, ephemeral: false })
 		}
 		 else {
             await command.execute(interaction);
