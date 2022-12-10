@@ -209,7 +209,9 @@ client.on(Events.InteractionCreate, async interaction => {
 			let msgData = await addPoints(checkIfuser(userId).user.user,{user_id:userId,points:points},databaseName)
 
 			 log.send({embeds:[msgData],ephemeral:false})
-			 interaction.reply({content:'Points Added',ephemeral:false})
+			 await interaction.deferReply({content:"Point Added",ephemeral:true})
+			 await interaction.editReply({content:"Point Added",ephemeral:true})
+			//  interaction.reply("Point Added")
 			
 		} else if ( interaction.commandName === 'addtask'){
 			const points = interaction.options._hoistedOptions?.[0].value
@@ -220,14 +222,16 @@ client.on(Events.InteractionCreate, async interaction => {
 			let addTaskData = await addTasks(input,databaseName)
 			// console.log(addTaskData)
 			log.send({embeds:[addTaskData], ephemeral: false })
-			 interaction.reply({content:'Task Added',ephemeral:false})
+			 await interaction.deferReply({content:"Task Added",ephemeral:true})
+			 await interaction.editReply({content:"Task Added",ephemeral:true})
 			
 		} else if ( interaction.commandName === 'view-task'){
 			const task_id = interaction.options._hoistedOptions?.[0].value
 			let input = {user:interaction.user,task_id:task_id}
 			
 			let viewTaskData = await viewTask(input,databaseName)
-			await interaction.reply({embeds:[viewTaskData], ephemeral: true })
+			await interaction.deferReply({content:"Point Added",ephemeral:true})
+			 await interaction.editReply({embeds:[viewTaskData], ephemeral: true })
 		} else if ( interaction.commandName === 'approve-task'){
 			if(!checkIfAdmin(interaction.user.id).message) return await interaction.reply({content:"You don't have access to approve tasks",ephemeral:true})
 			const task_id = interaction.options._hoistedOptions?.[0].value
@@ -239,7 +243,8 @@ client.on(Events.InteractionCreate, async interaction => {
 			if(viewTaskData.message !== 'success') return await interaction.reply({content:viewTaskData.message, ephemeral: true })
 			log.send({embeds:[msg], ephemeral: false })/
 			// await log.send(`Event: Task Add\n Task ID: ${addTaskData.task_id}\n User ID: ${addTaskData.user_id} \n User Name:${addTaskData.user_name}\nTASK DETAILS\n Task Category: ${addTaskData.task_details.category}\n Task Name: ${addTaskData.task_details.task_name}\n Points:${addTaskData.task_details.point}\n\nBy ${interaction.user.tag}`)
-			 interaction.reply({content:`Task Approved!`, ephemeral: false })
+			 await interaction.deferReply({content:"Task Approving",ephemeral:true})
+			 await interaction.editReply({content:"Task Approved",ephemeral:true})
 		}
 		 else {
             await command.execute(interaction);
