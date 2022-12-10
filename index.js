@@ -177,6 +177,7 @@ client.on(Events.InteractionCreate, async interaction => {
         if(command.data.name==='rarity'|| command.data.name==='culd') return;
 
         if(command.data.name ==='points'){
+			await interaction.reply({content:"Fetching User Details...",ephemeral:true})
 			const id = interaction?.options?._hoistedOptions?.[0]?.value
 			let user= interaction.user
 			let userId
@@ -187,14 +188,14 @@ client.on(Events.InteractionCreate, async interaction => {
 					nickName = user.nickName
 					// console.log(user)
 				} else {
-				return await interaction.reply({content:"the requested user not found in the core team",ephemeral: false })
+				return await interaction.editReply({content:"the requested user not found in the core team",ephemeral: false })
 				}
 			} 
 			
             let user_details = await UserDetails(user,nickName,botAvatar,databaseName)
             // console.log(user_details)
 
-			return await interaction.reply({embeds:[user_details], ephemeral: false })
+			return await interaction.editReply({embeds:[user_details], ephemeral: false })
 
 			
 				
@@ -234,7 +235,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			
 			let viewTaskData = await viewTask(input,databaseName)
 			 await interaction.editReply({embeds:[viewTaskData], ephemeral: true })
-			 
+
 		} else if ( interaction.commandName === 'approve-task'){
 			if(!checkIfAdmin(interaction.user.id).message) return await interaction.reply({content:"You don't have access to approve tasks",ephemeral:true})
 			await interaction.reply({content:"Task Approving",ephemeral:true})
