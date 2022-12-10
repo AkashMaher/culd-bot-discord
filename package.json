@@ -1,0 +1,28 @@
+{
+  "name": "culd-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {
+    "node": "^16.11.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/rest": "^1.2.0",
+    "discord-api-types": "^0.37.21",
+    "discord.js": "^14.7.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "https": "^1.0.0",
+    "mongodb": "^4.12.1",
+    "mongoose": "^6.8.0",
+    "nodemon": "^2.0.20"
+  }
+}
