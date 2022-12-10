@@ -157,7 +157,7 @@ module.exports = {
                         { name: 'Investigate and share a valuable info (80 Points)', value: 80 },
                         )
                 )
-                .addIntegerOption(option =>
+                .addStringOption(option =>
                     option.setName('task_detail')
                         .setDescription('Input Task Detail')
                         .setRequired(true)
@@ -166,6 +166,6 @@ module.exports = {
                 ),
 		
 	async execute(interaction) {
-		await interaction.reply('Task Added');
+		// await interaction.reply('Task Added');
 	},
 };

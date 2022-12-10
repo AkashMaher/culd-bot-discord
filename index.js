@@ -220,8 +220,8 @@ client.on(Events.InteractionCreate, async interaction => {
 			let addTaskData = await addTasks(input,databaseName)
 			// console.log(addTaskData)
 			await log.send({embeds:[addTaskData], ephemeral: false })
-			// await log.send(`Event: Task Add\n Task ID: ${addTaskData.task_id}\n User ID: ${addTaskData.user_id} \n User Name:${addTaskData.user_name}\nTASK DETAILS\n Task Category: ${addTaskData.task_details.category}\n Task Name: ${addTaskData.task_details.task_name}\n Points:${addTaskData.task_details.point}\n\nBy ${interaction.user.tag}`)
 			await interaction.reply({content:'Task Added',ephemeral:true})
+			
 		} else if ( interaction.commandName === 'view-task'){
 			const task_id = interaction.options._hoistedOptions?.[0].value
 			let input = {user:interaction.user,task_id:task_id}

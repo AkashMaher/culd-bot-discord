@@ -10,9 +10,14 @@ async function UserDetails(user,nickName,botAvatar,databaseName){
     let data = await collection.findOne({ user_id: user?.id });
     if(!data){
         collection.insertOne({user_id:user.id,user_name:user.tag, total_points:0,tasks_done:0,tasks_yet:0})
-        let data = await collection.findOne({ user_id: user?.id });
+        data = await collection.findOne({ user_id: user?.id });
+		console.log(data)
         return await embedMsgUserDetails(data,user,nickName,botAvatar)
-    } else return await embedMsgUserDetails(data,user,nickName,botAvatar)
+		
+    } else {
+		data = await collection.findOne({ user_id: user?.id });
+		return await embedMsgUserDetails(data,user,nickName,botAvatar)
+	}
 }
 async function embedMsgUserDetails(data,user,nickName,botAvatar) {
     
@@ -48,8 +53,8 @@ async function embedMsgUserDetails(data,user,nickName,botAvatar) {
 		},
 		{
 			name: '|  TASKS DONE',
-			value: `|   ${data?.tasks_done?data?.total_tasks_done:0}`,
-			inline: true,
+			value: `|   ${data?.tasks_done}`,
+			inline: true, 
 		},
 		{
 			name: '|  YET TO APPROVE',
