@@ -3,7 +3,7 @@ const mongourl = process.env['mongourl']
 const mongoClient = new MongoClient(mongourl);
 
 async function approveTask(input,databaseName){
-    const {user,task_id} = input
+    const {user,task_id,approve_by} = input
     let result = await mongoClient.connect();
     let db = result.db(databaseName);
     let collection = db.collection('user');
@@ -27,7 +27,7 @@ async function approveTask(input,databaseName){
     let task_done = data.tasks_done===0?1:data.tasks_done+1
     console.log(task_done)
     await collection.findOneAndUpdate({ user_id: TaskData.user_id },{$set:{tasks_yet:data.tasks_yet>0?data.tasks_yet-1:data.tasks_yet,tasks_done:task_done,total_points:data.total_points+TaskData.task_details.point}});
-    await taskCollection.findOneAndUpdate({task_id:task_id,status:'await'},{$set:{status:'approved'}})
+    await taskCollection.findOneAndUpdate({task_id:task_id,status:'await'},{$set:{status:'approved',approved_by:approve_by}})
     
 
     let taskData = await taskCollection.findOne({task_id:parseInt(task_id)})
@@ -87,6 +87,11 @@ async function embedMsgTask(data,user) {
 		{
 			name: '|  Points',
 			value: `|   ${data?.task_details.point}`,
+			inline: true,
+		},
+		{
+			name: '|  Approved Status',
+			value: `|   ${data.status!=="await"?'Approved By :'+data?.approved_by:"Yet To Approve"}`,
 			inline: true,
 		},
 		{

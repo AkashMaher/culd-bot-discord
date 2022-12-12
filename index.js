@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client,Collection,Events ,GatewayIntentBits,WebhookClient,PermissionsBitField  } = require('discord.js');
+const { Client,Collection,Events ,GatewayIntentBits,WebhookClient,PermissionsBitField,InteractionType  } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
@@ -26,6 +26,8 @@ const {addPoints} = require('./src/addPoints')
 const {addTasks} = require('./src/addTasks')
 const {viewTask} = require('./src/viewTask')
 const {approveTask} = require('./src/approveTask')
+const {embedMsgApprove} = require('./src/embedMsg')
+const modal = require('./src/modal')
 
 // const { collection } = require('./meta.js');
 // MongoDB part
@@ -195,7 +197,7 @@ client.on(Events.InteractionCreate, async interaction => {
             let user_details = await UserDetails(user,nickName,botAvatar,databaseName)
             // console.log(user_details)
 
-			return await interaction.editReply({embeds:[user_details], ephemeral: false })
+			return await interaction.editReply({content:`User Details: ${user.tag}`,embeds:[user_details], ephemeral: false })
 
 			
 				
@@ -210,7 +212,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			if(!checkIfuser(userId).message) return interaction.reply({ content: `The user not found in core team`, ephemeral: true })
 			let msgData = await addPoints(checkIfuser(userId).user.user,{user_id:userId,points:points},databaseName)
 
-			 await interaction.editReply({content:"Point Added",ephemeral:true})
+			 await interaction.editReply({content:"Point Added",embeds:[msgData],ephemeral:true})
 			 log.send({embeds:[msgData],ephemeral:false})
 			 
 			//  interaction.reply("Point Added")
@@ -224,7 +226,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			
 			let addTaskData = await addTasks(input,databaseName)
 			// console.log(addTaskData)
-			await interaction.editReply({content:"Task Added",ephemeral:true})
+			await interaction.editReply({content:"Task Added",embeds:[addTaskData], ephemeral:true})
 			log.send({embeds:[addTaskData], ephemeral: false })
 			 
 			
@@ -234,27 +236,94 @@ client.on(Events.InteractionCreate, async interaction => {
 			let input = {user:interaction.user,task_id:task_id}
 			
 			let viewTaskData = await viewTask(input,databaseName)
-			 await interaction.editReply({embeds:[viewTaskData], ephemeral: true })
+			 await interaction.editReply({content:`Task Details: ${task_id}`,embeds:[viewTaskData], ephemeral: true })
 
 		} else if ( interaction.commandName === 'approve-task'){
 			if(!checkIfAdmin(interaction.user.id).message) return await interaction.reply({content:"You don't have access to approve tasks",ephemeral:true})
 			await interaction.reply({content:"Task Approving",ephemeral:true})
 			const task_id = interaction.options._hoistedOptions?.[0].value
-			let input = {user:interaction.user,task_id:task_id}
+			let input = {user:interaction.user,task_id:task_id,approve_by:interaction.user.tag}
 
 			let viewTaskData = await approveTask(input,databaseName)
 			// console.log()
 			let msg = viewTaskData.data
 			if(viewTaskData.message !== 'success') return await interaction.editReply({content:viewTaskData.message, ephemeral: true })
-			await interaction.editReply({content:"Task Approved",ephemeral:true})
+			await interaction.editReply({content:"Task Approved",embeds:[msg],ephemeral:true})
 			log.send({embeds:[msg], ephemeral: false })
 			// await log.send(`Event: Task Add\n Task ID: ${addTaskData.task_id}\n User ID: ${addTaskData.user_id} \n User Name:${addTaskData.user_name}\nTASK DETAILS\n Task Category: ${addTaskData.task_details.category}\n Task Name: ${addTaskData.task_details.task_name}\n Points:${addTaskData.task_details.point}\n\nBy ${interaction.user.tag}`)
 
+		} else if ( interaction.commandName === 'approve-multiple'){
+			console.log(interaction.replied)
+			await interaction.showModal(modal);
+			const filter = (interaction) => interaction.customId === 'myModal';
+			interaction.awaitModalSubmit({ filter, time: 180000 })
+			.then(async interaction => {
+				
+				let ids = interaction.fields.getField('taskIdsInput').value.split('\n')
+				
+				ids = ids.sort().filter(function(el,i,a){return i===a.indexOf(el)})
+				console.log(ids)
+				console.log(`${interaction.customId} was submitted!`)
+
+				if (interaction.type === InteractionType.ModalSubmit) {
+				console.log('Modal Submitted...');
+				if (interaction.customId === 'myModal') {
+				console.log(interaction.fields.getTextInputValue('taskIdsInput')[0]);
+				interaction.reply({
+					content: 'Approve Multiple Tasks!',
+					ephemeral:true
+				});
+				}
+				let embedfields = []
+				console.log(ids.length)
+				if(ids.length>0){
+					let j = 0;
+					for(i=0;i<ids.length;i++){
+						const task_id = parseInt(ids[i])
+						if(!isNaN(task_id)){
+							
+							console.log(task_id)
+							let input = {user:interaction.user,task_id:task_id,approve_by:interaction.user.tag}
+							let viewTaskData = await approveTask(input,databaseName)
+							let msg = viewTaskData.data
+							if(viewTaskData.message !== 'success') {
+							embedfields[j] = {name:`Task Id: ${task_id}`,value:`Status: ${viewTaskData.message}`};
+							} else {
+							embedfields[j] = {name:`Task Id: ${task_id}`,value:"Status: Task Approved"};
+							log.send({embeds:[msg], ephemeral: false })
+							}
+							j++
+						} else {
+							if(embedfields.length===0){
+								embedfields[0] = {name:"Status",value:"No Entries Found"}
+							}
+						}
+						
+						
+						// console.log(embedfields[i])
+					}
+					// console.log(embedfields)
+					if(embedfields.length>0){
+					let embedData = await embedMsgApprove(embedfields,interaction.user)
+					await interaction.editReply({content:'Task approve',embeds:[embedData],ephemeral:true})
+					} else {
+						await interaction.editReply({content:'No Entries found',ephemeral:true})
+					}
+					
+				}
+			}
+				
+				
+			})
+			.catch(console.error);
+			// await interaction.reply('approve multiple tasks')
 		}
 		 else {
             await command.execute(interaction);
 			
         }
+
+		
 		
         
 	} catch (error) {
@@ -262,5 +331,19 @@ client.on(Events.InteractionCreate, async interaction => {
 		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 	}
 });
+
+client.on(Events.interaction, async (modal) => {
+    if (!modal.customId === 'myModal') return;
+	console.log(modal)
+    await modal.reply({ content: 'Your order was received successfully!', ephemeral: true });
+    const IGN = modal.getTextInputValue('minecraft_ign');
+    const Weapon = modal.getSelectMenuValue('weapon_type');
+    const ownedWeapon = modal.getSelectMenuValue('owned_weapon');
+    const ownedTanks = modal.getSelectMenuValue('owned_tanks');
+    const wantedTanks = modal.getSelectMenuValue('wanted_tanks');
+    console.log({IGN, Weapon, ownedWeapon, ownedTanks, wantedTanks})
+})
+
+
 keepAlive()
 client.login(token);

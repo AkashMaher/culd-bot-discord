@@ -67,6 +67,11 @@ async function embedMsgTask(data,user) {
 			inline: true,
 		},
 		{
+			name: '|  Approved Status',
+			value: `|   ${data.status!=="await"?'Approved By :'+data?.approved_by:"Yet To Approve"}`,
+			inline: true,
+		},
+		{
 			name: '|  Task Name',
 			value: `|   ${data?.task_details.task_name}`,
 			inline: false,
