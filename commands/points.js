@@ -5,7 +5,7 @@ const { SlashCommandBuilder } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('points')
-		.setDescription('Points!')
+		.setDescription('View Points!')
 		.addStringOption(option =>
             option.setName('select_user')
                 .setDescription('select user')

@@ -27,6 +27,7 @@ const {addTasks} = require('./src/addTasks')
 const {viewTask} = require('./src/viewTask')
 const {approveTask} = require('./src/approveTask')
 const {embedMsgApprove} = require('./src/embedMsg')
+const {embedMsgHelp} = require('./src/helpEmbed')
 const modal = require('./src/modal')
 
 // const { collection } = require('./meta.js');
@@ -165,6 +166,7 @@ function checkIfAdmin(userId){
 }
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
+	if(interaction.replied) return console.log("already replied");
     let nickName = await interaction.member.nickname
 	const command = interaction.client.commands.get(interaction.commandName);
 	let botAvatar = client.user.displayAvatarURL({ size: 1024, dynamic: true });
@@ -239,6 +241,8 @@ client.on(Events.InteractionCreate, async interaction => {
 			 await interaction.editReply({content:`Task Details: ${task_id}`,embeds:[viewTaskData], ephemeral: true })
 
 		} else if ( interaction.commandName === 'approve-task'){
+			console.log(interaction.replied)
+			if(interaction.replied) return console.log("already replied");
 			if(!checkIfAdmin(interaction.user.id).message) return await interaction.reply({content:"You don't have access to approve tasks",ephemeral:true})
 			await interaction.reply({content:"Task Approving",ephemeral:true})
 			const task_id = interaction.options._hoistedOptions?.[0].value
@@ -317,6 +321,21 @@ client.on(Events.InteractionCreate, async interaction => {
 			})
 			.catch(console.error);
 			// await interaction.reply('approve multiple tasks')
+		} else if(interaction.commandName === 'culd-help'){
+			let embedfields = []
+			await interaction.client.commands.filter((a)=> {
+				// console.log(a.data.name)
+				let i = embedfields.length
+				embedfields[i] = {name:`Command : \`/${a.data.name}\``, value:`**Usage :** ${a.data.description}`}
+			})
+			// console.log(embedfields)
+			
+			if(embedfields.length>0){
+					let embedData = await embedMsgHelp(embedfields,interaction.user)
+					await interaction.reply({content:'Help Commands',embeds:[embedData],ephemeral:true})
+					} else {
+						await interaction.reply({content:'No Commands found',ephemeral:true})
+					}
 		}
 		 else {
             await command.execute(interaction);

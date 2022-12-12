@@ -11,7 +11,7 @@ async function approveTask(input,databaseName){
     let totalTasks = (await taskCollection.countDocuments()).toString()
     totalTasks = parseInt(totalTasks)
     let TaskData = await taskCollection.findOne({task_id:task_id,status:'await'})
-    if(task_id>totalTasks) {
+    if(task_id>totalTasks || task_id<=0) {
         return {
             message:'The task with input task_id is not found'
         }
