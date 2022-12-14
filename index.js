@@ -53,41 +53,7 @@ mongodb.on('error', console.error.bind(console, 'Connection error:'));
 const mongoClient = new MongoClient(mongourl);
 const databaseName = "workspace";
 
-const commands = [
-    {
-    "name": "rarity",
-    "type": 1,
-    "description": "culd rarity checker",
-    "options": [
-        {
-            "name": "check_by",
-            "description": "choose option for rarity checke",
-            "type": 3,
-            "required": true,
-            "choices": [
-                {
-                    "name": "Rank",
-                    "value": "culd_rank"
-                },
-                {
-                    "name": "TokenId",
-                    "value": "culd_token_id"
-                }
-            ]
-        },
-        {
-            "name": "input",
-            "description": "input number",
-            "type": 3,
-            "required": true
-        }
-    ]
-},
-  {
-  name:'culd',
-  description: 'check dao nfts!'
-},
-];
+const commands = [];
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
@@ -102,10 +68,6 @@ for (const file of commandFiles) {
 		console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
 	}
 }
-
-
-
-
 const rest = new REST({ version: '10' }).setToken(token);
 
 // and deploy your commands!
