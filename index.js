@@ -12,14 +12,16 @@ const MongoClient = require("mongodb").MongoClient;
 const mongoose = require('mongoose')
 const token = process.env['token']
 const OwnerId = process.env['OwnerId']
-const clientId = process.env['client_id']
-const guildId = process.env['guild_id']
+// const clientId = process.env['client_id']
+// const guildId = process.env['guild_id']
 const mongourl = process.env['mongourl']
 const pointLogToken = process.env['pointLogToken']
 const pointLogId = process.env['pointLogId']
-const coreTeamRole = process.env['coreTeamRole']
+// const daoRole = process.env['daoRole']
 const UserModel = require('./models/User');
 const TaskModel = require('./models/Tasks')
+
+const {clientId,guildId,daoRole,daoRole2} = require('./config.json')
 
 const {UserDetails} = require('./src/userdetails');
 const {addPoints} = require('./src/addPoints')
@@ -101,13 +103,13 @@ client.on(Events.ClientReady, () => {
 
 
 
-function checkIfuser(userId){
-	let guild = client.guilds.cache.get(guildId)
-	let user = guild.members.cache.get(userId)
+async function checkIfuser(userId){
+	let guild = await client.guilds.cache.get(guildId)
+	let user = await guild?.members.cache.get(userId)
 	if(!user){
 		return false
 	}
-	let checkIfuserHasRole = user._roles.includes(coreTeamRole)
+	let checkIfuserHasRole = user._roles.includes(daoRole) || user._roles.includes(daoRole2)
 	return {
 		message:checkIfuserHasRole?true:false,
 		user:user,
@@ -138,9 +140,15 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 
 	try {
-		if(!checkIfuser(interaction.user.id).message) return interaction.reply({ content: `don't have permission to execute the command`, ephemeral: true });
+		if(command.data.name =='rarity'|| command.data.name =='culd'){
+			return console.log(command.data.name)
+		} else {
+			let checkUser = await checkIfuser(interaction.user.id)
+			if(!checkUser.message) return interaction.reply({ content: `don't have permission to execute the command`, ephemeral: true });
+		}
+		
 
-        if(command.data.name==='rarity'|| command.data.name==='culd') return;
+        
 
         if(command.data.name ==='points'){
 			await interaction.reply({content:"Fetching User Details...",ephemeral:true})
@@ -187,7 +195,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			const taskName = interaction.options._hoistedOptions?.[1].value
 			const category = interaction.options._subcommand
 			let input = {user:interaction.user,taskName:taskName,points:points,category:category}
-			
+
 			let addTaskData = await addTasks(input,databaseName)
 			// console.log(addTaskData)
 			await interaction.editReply({content:"Task Added",embeds:[addTaskData], ephemeral:true})
